@@ -29,3 +29,10 @@ The following environment variables must be set to run the examples:
 |------------|----------------------------------------------------------------|------------------------------------------|
 | API_KEY    | Dedicated API key required to access the specified environment | secret                                   |
 | SERVER_URL | Dedicated server that you want to access                       | https://not-gonna-tell-you.str8lines.com |
+
+
+
+
+## API Documentation
+
+The APIs are available in yaml format.  You can review the APIs in your preferred tool or import directly to the online swagger tool at https://editor.swagger.io/
