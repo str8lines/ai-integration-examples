@@ -3,7 +3,7 @@ import os
 import requests
 
 # server settings for connectivity
-URL_BASE_SERVER = os.getenv("SERVER_URL", "https://ai-staging.str8lines.com")
+URL_BASE_SERVER = os.getenv("SERVER_URL", "https://secret.str8lines.com")
 URL_IMAGE = f'{URL_BASE_SERVER}/image'
 API_KEY = os.environ.get("API_KEY", None)
 
