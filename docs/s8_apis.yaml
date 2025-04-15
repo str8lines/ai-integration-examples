@@ -14,7 +14,10 @@ servers:
   - url: https://ai-staging.str8lines.com/
 tags:
   - name: image
-    description: Everything related to the images. 
+    description: Everything related to the images.
+  - name: marketing_asset
+    description: Everything related to marketing assets.
+
 paths:
   /image/{imageId}:
     parameters:
@@ -97,7 +100,154 @@ paths:
                   $ref: '#/components/schemas/Image'
         '400':
           description: Invalid status value
-  
+
+  /marketing_asset/{assetId}:
+    parameters:
+      - name: assetId
+        in: path
+        description: ID of marketing asset to return
+        required: true
+        schema:
+          type: string
+    patch:
+      tags:
+        - marketing_asset
+      summary: Update an existing asset
+      description: Update an existing asset by Id
+      operationId: updateAsset
+      requestBody:
+        description: Update an asset
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarketingAsset'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketingAsset'
+        '400':
+          description: Invalid ID supplied
+        '401':
+          description: Not authorized
+    get:
+      tags:
+        - marketing_asset
+      summary: Retrieve a specific asset by id
+      description: Get the single asset
+      operationId: findAssetById
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MarketingAsset'
+        '400':
+          description: Invalid id
+    delete:
+      tags:
+        - marketing_asset
+      summary: Delete a specific asset by id
+      description: Delete the single asset
+      operationId: deleteAsset
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid id
+  /marketing_asset/{assetId}/upload_single:
+    parameters:
+      - name: assetId
+        in: path
+        description: ID of marketing asset to return
+        required: true
+        schema:
+          type: string
+    post:
+      tags:
+        - marketing_asset
+      summary: Upload the source photo to the asset to be converted
+      description: Upload a file to a marketing asset
+      operationId: uploadAsset
+      requestBody:
+        description: Upload a 3d rendering to an asset
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The file to upload
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketingAsset'
+        '400':
+          description: Invalid ID supplied
+        '401':
+          description: Not authorized
+
+  /marketing_asset:
+    get:
+      tags:
+        - marketing_asset
+      summary: Find asset by specified criteria
+      description: A marketing asset contains the original source file as well as the rendered image
+      operationId: findAssets
+      parameters:
+        - name: filter_param
+          in: query
+          description: Limit the returned results using specified criteria
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MarketingAsset'
+        '400':
+          description: Invalid status value
+    post:
+      tags:
+        - marketing_asset
+      summary: Create marketing asset
+      description: A marketing asset contains the original source file as well as the rendered image
+      operationId: createAsset
+      requestBody:
+        description: Create an asset
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarketingAsset'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MarketingAsset'
+        '400':
+          description: Invalid status value
+
 components:
   schemas:
     Image:
@@ -110,13 +260,22 @@ components:
           example: 123.png
         code:
           type: string
-          example: 10023223
+          example: abc123
         shipDate:
           type: string
         is_option:
           type: boolean
         send_to_closet:
+          type: boolean
+    MarketingAsset:
+      type: object
+      properties:
+        prompt:
           type: string
-          example: Yes
-        closet_status:
+          example: "Professional photo of a girl wearing an outfit"
+        file_name_os:
           type: string
+          example: abcd1234.png
+        retain_elements:
+          type: string
+          example: shirt,shoes
