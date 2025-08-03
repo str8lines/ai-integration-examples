@@ -13,12 +13,150 @@ info:
 servers:
   - url: https://ai-staging.str8lines.com/
 tags:
+  - name: collection
+    description: Everything related to collections.
+  - name: color
+    description: Everything related to colors.
   - name: image
     description: Everything related to the images.
   - name: marketing_asset
     description: Everything related to marketing assets.
 
 paths:
+  /collection:
+    get:
+      tags:
+        - collection
+      summary: Query for collections
+      description: Retrieve a list of collections
+      operationId: findCollectoins
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Collection'
+        '400':
+          description: Invalid id
+  /collection/{collectionId}:
+    parameters:
+      - name: collectionId
+        in: path
+        description: ID of record to return
+        required: true
+        schema:
+          type: string
+    patch:
+      tags:
+        - collection
+      summary: Update an existing collection
+      description: Update an existing collection by Id
+      operationId: updateCollection
+      requestBody:
+        description: Update an collection
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Collection'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+        '400':
+          description: Invalid ID supplied
+        '401':
+          description: Not authorized
+    get:
+      tags:
+        - color
+      summary: Get color by id
+      description: Retrieve a specific color
+      operationId: findCollectionById
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Color'
+        '400':
+          description: Invalid id
+  /color:
+    get:
+      tags:
+        - color
+      summary: Query for colors
+      description: Retrieve a list of colors
+      operationId: findColors
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Color'
+        '400':
+          description: Invalid id
+  /color/{colorId}:
+    parameters:
+      - name: colorId
+        in: path
+        description: ID of color to return
+        required: true
+        schema:
+          type: string
+    patch:
+      tags:
+        - color
+      summary: Update an existing color
+      description: Update an existing color by Id
+      operationId: updateColor
+      requestBody:
+        description: Update an color
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Color'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Color'
+        '400':
+          description: Invalid ID supplied
+        '401':
+          description: Not authorized
+    get:
+      tags:
+        - color
+      summary: Get color by id
+      description: Retrieve a specific color
+      operationId: findColorById
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Color'
+        '400':
+          description: Invalid id
   /image/{imageId}:
     parameters:
       - name: imageId
@@ -250,6 +388,83 @@ paths:
 
 components:
   schemas:
+    Collection:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+          example: Spring 2025
+        active:
+          type: boolean
+          example: true
+        created:
+          type: string
+        modified:
+          type: string
+        concept:
+          type: array
+          items:
+            type: string
+            format: uuid  # or remove if not UUIDs
+          description: |
+            An array of string IDs referencing the image API.
+        color:
+          type: array
+          items:
+            type: string
+            format: uuid  # or remove if not UUIDs
+          description: |
+            An array of string IDs referencing the color API.
+        graphic:
+          type: array
+          items:
+            type: string
+            format: uuid  # or remove if not UUIDs
+          description: |
+            An array of string IDs referencing the graphic API.
+        marketing_asset:
+          type: array
+          items:
+            type: string
+            format: uuid  # or remove if not UUIDs
+          description: |
+            An array of string IDs referencing the marketing asset API.
+        outfit:
+          type: array
+          items:
+            type: string
+            format: uuid  # or remove if not UUIDs
+          description: |
+            An array of string IDs referencing the outfit API.
+        print:
+          type: array
+          items:
+            type: string
+            format: uuid  # or remove if not UUIDs
+          description: |
+            An array of string IDs referencing the print API.
+    Color:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+          example: Candy Red
+        code:
+          type: string
+          example: 655
+        color_provider:
+          type: string
+          example: Pantone
+        color_provider_ref:
+          type: string
+          example: TBD
+        hex_code:
+          type: string
+          example: "#D21404"
     Image:
       type: object
       properties:

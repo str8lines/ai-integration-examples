@@ -9,6 +9,12 @@ API_KEY = os.environ.get("API_KEY", None)
 
 
 def headers():
+    """
+    Generate headers for HTTP requests with authorization.
+
+    Returns:
+        dict: A dictionary containing the 'Authorization' key with an API key as its value.
+    """
     return {
         'Authorization': f'{API_KEY}'
     }
