@@ -19,14 +19,22 @@ tags:
     description: Everything related to colors.
   - name: color_way
     description: Everything related to color ways.
+  - name: file
+    description: Everything related to files.
   - name: image
     description: Everything related to the images.
+  - name: libraries
+    description: Everything related to libraries and their records.
   - name: marketing_asset
     description: Everything related to marketing assets.
   - name: palette
     description: Everything related to palettes (colors, prints, or materials).
   - name: persona
     description: Everything related to personas.
+  - name: prompt_template
+    description: Everything related to prompt templates.
+  - name: scenario
+    description: Everything related to scenarios (generation requests under a parent asset).
   - name: style
     description: Everything related to styles.
   - name: workflow
@@ -395,6 +403,40 @@ paths:
           description: Invalid ID supplied
         '401':
           description: Not authorized
+  /marketing_asset/{assetId}/scenario:
+    parameters:
+      - name: assetId
+        in: path
+        description: ID of the parent marketing asset
+        required: true
+        schema:
+          type: string
+    post:
+      tags:
+        - scenario
+      summary: Create a scenario under a marketing asset
+      description: |
+        Create a generation scenario for a parent marketing asset. The scenario references an
+        AI model and a workflow, an output size, and a set of input images via input_file_ids.
+      operationId: createMarketingAssetScenario
+      requestBody:
+        description: The scenario field values
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Scenario'
+        required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scenario'
+        '400':
+          description: Invalid ID supplied
+        '401':
+          description: Not authorized
 
   /marketing_asset:
     get:
@@ -736,6 +778,101 @@ paths:
         '404':
           description: Record not found
 
+  /prompt_template:
+    get:
+      tags:
+        - prompt_template
+      summary: Query for prompt templates
+      description: |
+        Retrieve a list of prompt templates. Filter by name to look up a specific template,
+        e.g. 'name eq "Studio Seamless - Pure White"'. The matched template's prompt_text is
+        the prompt to use.
+      operationId: findPromptTemplates
+      parameters:
+        - name: filter_param
+          in: query
+          description: Limit the returned results using specified criteria
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PromptTemplate'
+        '400':
+          description: Invalid status value
+
+  /file/upload_single:
+    post:
+      tags:
+        - file
+      summary: Upload a file to the file collection
+      description: |
+        Upload a file and create a file record. The returned record's _id can be referenced
+        elsewhere, for example in a scenario's input_file_ids.
+      operationId: uploadFile
+      requestBody:
+        description: The file to upload
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The file to upload
+        required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '400':
+          description: Invalid file
+
+  /libraries/{libraryKey}/items:
+    parameters:
+      - name: libraryKey
+        in: path
+        description: The library to query, e.g. 'supporting_assets'
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - libraries
+      summary: Query for records in a library
+      description: |
+        Retrieve the records in a library. Filter by name and/or other fields, e.g.
+        'name eq "Studio Model" and asset_type eq base_model'.
+      operationId: findLibraryItems
+      parameters:
+        - name: filter_param
+          in: query
+          description: Limit the returned results using specified criteria
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '403':
+          description: Not authorized for this library
+
 components:
   schemas:
     Collection:
@@ -1000,6 +1137,105 @@ components:
           type: string
         modified:
           type: string
+    PromptTemplate:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+          example: Studio Seamless - Pure White
+        prompt_text:
+          type: string
+          description: The prompt to use
+          example: Photorealistic studio shot on a pure white seamless.
+        template_type:
+          type: string
+          enum:
+            - background
+            - image
+            - refine_image
+            - lighting
+            - video
+            - persona
+          example: background
+        prompt_type:
+          type: string
+          enum:
+            - positive
+            - negative
+          example: positive
+        description:
+          type: string
+        is_public:
+          type: boolean
+          example: true
+        active:
+          type: boolean
+          example: true
+    File:
+      type: object
+      properties:
+        _id:
+          type: string
+        file_name_os:
+          type: string
+          description: Original file name
+          example: detail_1.png
+        file_name_s3:
+          type: string
+          description: Stored object name
+        url:
+          type: string
+          description: URL to the file
+    Scenario:
+      type: object
+      properties:
+        _id:
+          type: string
+        prompt:
+          type: string
+          example: A studio product photo
+        model:
+          type: string
+          description: The AI model id to render with
+        workflow_id:
+          type: string
+          description: reference to the workflow id
+        scenario_type:
+          type: string
+          example: 3d_to_real
+        width:
+          type: integer
+          example: 1024
+        height:
+          type: integer
+          example: 1024
+        num_images:
+          type: integer
+          example: 1
+        input_file_ids:
+          type: array
+          description: |
+            The input images for the scenario. Each entry pairs a file/asset id with the
+            asset_type that identifies its kind, e.g. 'file' for uploaded or referenced files.
+          items:
+            type: object
+            properties:
+              _id:
+                type: string
+                description: file or asset id
+              asset_type:
+                type: string
+                example: file
+              wf_field:
+                type: string
+                description: |
+                  Optional id of the workflow image field this input maps to, so the
+                  scenario can be replayed or copied in the app.
+        marketing_asset_id:
+          type: string
+          description: reference to the parent marketing asset
     Seasonal Style:
       type: object
       properties:
