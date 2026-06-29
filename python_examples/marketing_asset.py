@@ -1,17 +1,7 @@
-import os
-
-import requests
+from auth import URL_BASE_SERVER, authorized_request
 
 # server settings for connectivity
-URL_BASE_SERVER = os.getenv("SERVER_URL", "https://secret.str8lines.com")
 URL_ASSET = f'{URL_BASE_SERVER}/marketing_asset'
-API_KEY = os.environ.get("API_KEY", None)
-
-
-def headers():
-    return {
-        'Authorization': f'{API_KEY}'
-    }
 
 
 def create_asset():
@@ -27,7 +17,7 @@ def create_asset():
 
     url = f"{URL_ASSET}"
 
-    response = requests.post(url, json=payload, headers=headers())
+    response = authorized_request('POST', url, json=payload)
     if not response.ok:
         print(response.status_code, response.content)
         raise ValueError('Unable to create asset', response.content)
@@ -39,7 +29,7 @@ def upload_asset(asset_id: dict, file_name: str):
     url = f"{URL_ASSET}/{asset_id}/upload_single"
     with open(file_name, 'rb') as file:
         files = {'file': (file_name, file)}
-        response = requests.post(url, files=files, headers=headers())
+        response = authorized_request('POST', url, files=files)
 
     print(response.status_code)
     print(response)

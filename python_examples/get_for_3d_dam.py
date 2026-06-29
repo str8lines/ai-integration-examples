@@ -1,23 +1,9 @@
-import os
-
 import requests
 
+from auth import URL_BASE_SERVER, authorized_request
+
 # server settings for connectivity
-URL_BASE_SERVER = os.getenv("SERVER_URL", "https://secret.str8lines.com")
 URL_IMAGE = f'{URL_BASE_SERVER}/image'
-API_KEY = os.environ.get("API_KEY", None)
-
-
-def headers():
-    """
-    Generate headers for HTTP requests with authorization.
-
-    Returns:
-        dict: A dictionary containing the 'Authorization' key with an API key as its value.
-    """
-    return {
-        'Authorization': f'{API_KEY}'
-    }
 
 
 def download_images(_images=None):
@@ -41,7 +27,7 @@ def get_pending_images(query: str = None) -> list:
 
     url = f"{URL_IMAGE}?{query_params}"
 
-    response = requests.get(url, headers=headers())
+    response = authorized_request('GET', url)
     if not response.ok:
         print(response.status_code, response.content)
         raise ValueError('Unable to retrieve image(s).', response.content)

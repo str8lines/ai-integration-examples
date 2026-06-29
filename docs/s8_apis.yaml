@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
-  title: Straight Lines Creative Design Platform APIs
+  title: Straight Lines Studio APIs
   description: |-
-    This is a subset of the APIs available for the Straight Lines Creative Design Platform based on the OpenAPI 3.0 specification.  
+    This is a subset of the APIs available for the Straight Lines Studio based on the OpenAPI 3.0 specification.  
     
     Some useful links:
     - [Straight Lines Web Site](https://www.str8lines.com)
@@ -17,10 +17,20 @@ tags:
     description: Everything related to collections.
   - name: color
     description: Everything related to colors.
+  - name: color_way
+    description: Everything related to color ways.
   - name: image
     description: Everything related to the images.
   - name: marketing_asset
     description: Everything related to marketing assets.
+  - name: palette
+    description: Everything related to palettes (colors, prints, or materials).
+  - name: persona
+    description: Everything related to personas.
+  - name: style
+    description: Everything related to styles.
+  - name: workflow
+    description: Everything related to AI workflows.
 
 paths:
   /collection:
@@ -75,9 +85,9 @@ paths:
           description: Not authorized
     get:
       tags:
-        - color
-      summary: Get color by id
-      description: Retrieve a specific color
+        - collection
+      summary: Get collection by id
+      description: Retrieve a specific collection
       operationId: findCollectionById
       responses:
         '200':
@@ -87,7 +97,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Color'
+                  $ref: '#/components/schemas/Collection'
         '400':
           description: Invalid id
   /color:
@@ -157,6 +167,55 @@ paths:
                   $ref: '#/components/schemas/Color'
         '400':
           description: Invalid id
+  /color_way/{colorWayId}:
+    parameters:
+      - name: colorWayId
+        in: path
+        description: ID of color way to return
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - color_way
+      summary: Get color way by id
+      description: Retrieve a specific color way
+      operationId: findColorWayById
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ColorWay'
+        '400':
+          description: Invalid id
+    patch:
+      tags:
+        - color_way
+      summary: Update an existing color way
+      description: Update an existing color way by Id
+      operationId: updateColorWay
+      requestBody:
+        description: Update an color way
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ColorWay'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ColorWay'
+        '400':
+          description: Invalid ID supplied
+        '401':
+          description: Not authorized
   /image/{imageId}:
     parameters:
       - name: imageId
@@ -386,6 +445,297 @@ paths:
         '400':
           description: Invalid status value
 
+  /palette:
+    get:
+      tags:
+        - palette
+      summary: Query for palettes
+      description: Retrieve a list of palettes. Filter by scope to return a single kind, e.g. 'scope eq colors' for color palettes.
+      operationId: findPalettes
+      parameters:
+        - name: filter_param
+          in: query
+          description: Limit the returned results using specified criteria, e.g. 'scope eq colors'
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Palette'
+        '400':
+          description: Invalid status value
+  /palette/{paletteId}:
+    parameters:
+      - name: paletteId
+        in: path
+        description: ID of palette to return
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - palette
+      summary: Get palette by id
+      description: Retrieve a specific palette
+      operationId: findPaletteById
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Palette'
+        '404':
+          description: Record not found
+    patch:
+      tags:
+        - palette
+      summary: Update an existing palette
+      description: Update an existing palette by Id
+      operationId: updatePalette
+      requestBody:
+        description: Update a palette
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Palette'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Palette'
+        '400':
+          description: Invalid ID supplied
+        '401':
+          description: Not authorized
+  /palette/{paletteId}/items:
+    parameters:
+      - name: paletteId
+        in: path
+        description: ID of palette whose items to return
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - palette
+      summary: Get the resolved items in a palette
+      description: |
+        Retrieve the records contained in a palette, resolved according to the palette's scope.
+        A 'colors' palette returns Color records, a 'prints' palette returns print records, and a
+        'materials' palette returns material records.
+      operationId: findPaletteItems
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Color'
+        '404':
+          description: Record not found
+
+  /persona:
+    get:
+      tags:
+        - persona
+      summary: Query for personas
+      description: Retrieve a list of personas. Filter by name to look up a specific persona, e.g. 'name eq "Studio Woman"'.
+      operationId: findPersonas
+      parameters:
+        - name: filter_param
+          in: query
+          description: Limit the returned results using specified criteria, e.g. 'name eq "Studio Woman"'
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Persona'
+        '400':
+          description: Invalid status value
+  /persona/{personaId}:
+    parameters:
+      - name: personaId
+        in: path
+        description: ID of persona to return
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - persona
+      summary: Get persona by id
+      description: Retrieve a specific persona
+      operationId: findPersonaById
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Persona'
+        '404':
+          description: Record not found
+    patch:
+      tags:
+        - persona
+      summary: Update an existing persona
+      description: Update an existing persona by Id
+      operationId: updatePersona
+      requestBody:
+        description: Update a persona
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Persona'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Persona'
+        '400':
+          description: Invalid ID supplied
+        '401':
+          description: Not authorized
+
+  /style:
+    get:
+      tags:
+        - style
+      summary: Query for styles
+      description: Retrieve a list of styles
+      operationId: findStyles
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Style'
+        '400':
+          description: Invalid id
+  /style/{styleId}:
+    parameters:
+      - name: styleId
+        in: path
+        description: ID of style to return
+        required: true
+        schema:
+          type: string
+    patch:
+      tags:
+        - style
+      summary: Update an existing style
+      description: Update an existing style by Id
+      operationId: updateStyle
+      requestBody:
+        description: Update a style
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Style'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Style'
+        '400':
+          description: Invalid ID supplied
+        '401':
+          description: Not authorized
+    get:
+      tags:
+        - style
+      summary: Get style by id
+      description: Retrieve a specific style
+      operationId: findStyleById
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Style'
+        '400':
+          description: Invalid id
+
+  /workflow:
+    get:
+      tags:
+        - workflow
+      summary: Query for AI workflows
+      description: Retrieve a list of AI workflows. Filter by name to search for a workflow, e.g. 'name contains "Outfit"' for a partial match or 'name eq "Outfit Generator"' for an exact match.
+      operationId: findWorkflows
+      parameters:
+        - name: filter_param
+          in: query
+          description: Limit the returned results using specified criteria, e.g. 'name contains "Outfit"'
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Workflow'
+        '400':
+          description: Invalid status value
+  /workflow/{workflowId}:
+    parameters:
+      - name: workflowId
+        in: path
+        description: ID of workflow to return
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - workflow
+      summary: Get workflow by id
+      description: Retrieve a specific AI workflow
+      operationId: findWorkflowById
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workflow'
+        '404':
+          description: Record not found
+
 components:
   schemas:
     Collection:
@@ -428,21 +778,21 @@ components:
           type: array
           items:
             type: string
-            format: uuid  # or remove if not UUIDs
+            format: uuid
           description: |
             An array of string IDs referencing the marketing asset API.
         outfit:
           type: array
           items:
             type: string
-            format: uuid  # or remove if not UUIDs
+            format: uuid
           description: |
             An array of string IDs referencing the outfit API.
         print:
           type: array
           items:
             type: string
-            format: uuid  # or remove if not UUIDs
+            format: uuid
           description: |
             An array of string IDs referencing the print API.
     Color:
@@ -465,6 +815,28 @@ components:
         hex_code:
           type: string
           example: "#D21404"
+    ColorWay:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+          example: Black
+        number:
+          type: string
+          example: 001
+        style:
+          type: string
+          format: uuid
+          description: reference to parent style
+        cad_details_color:
+          type: object
+          description: json object containing color up details for 3D rendering
+        image_colored_line_art:
+          type: string
+          format: uuid
+          description: reference to file id
     Image:
       type: object
       properties:
@@ -494,3 +866,197 @@ components:
         retain_elements:
           type: string
           example: shirt,shoes
+    Palette:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+          example: Spring 2025 Colors
+        scope:
+          type: string
+          description: The kind of records the palette contains.
+          enum:
+            - colors
+            - prints
+            - materials
+          example: colors
+        season:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: |
+            An array of string IDs referencing the season API.
+        image:
+          type: string
+          format: uuid
+          description: reference to file id
+        colors:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: |
+            An array of string IDs referencing the color API (present when scope is 'colors').
+        prints:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: |
+            An array of string IDs referencing the print API (present when scope is 'prints').
+        materials:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: |
+            An array of string IDs referencing the material API (present when scope is 'materials').
+        created:
+          type: string
+        modified:
+          type: string
+    Persona:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+          example: Studio Woman
+        description:
+          type: string
+          example: Confident woman in a minimalist white studio
+        purpose:
+          type: string
+          enum:
+            - Outfit
+            - Graphic Application
+          example: Outfit
+        usage:
+          type: string
+          enum:
+            - On Body
+            - Product Only
+          example: On Body
+        active:
+          type: boolean
+          example: true
+        file_name_os:
+          type: string
+          example: studio-woman.png
+        url:
+          type: string
+          description: URL to the persona image
+        created:
+          type: string
+        modified:
+          type: string
+    Workflow:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+          example: Outfit Generator
+        category:
+          type: string
+          example: Outfit
+        description:
+          type: string
+          example: Generate outfit imagery from a source design
+        active:
+          type: boolean
+          example: true
+        valid_for_adobe:
+          type: boolean
+          example: false
+        sort:
+          type: integer
+          example: 100
+        prompt_help:
+          type: string
+          description: Helper text shown to guide the prompt
+        temperature:
+          type: number
+          format: float
+          example: 0.7
+        library:
+          type: string
+          description: The library the workflow applies to
+        generation_strategy:
+          type: string
+          enum:
+            - multi-parents-single-scenario
+            - single-parent-multi-scenario
+          example: multi-parents-single-scenario
+        url:
+          type: string
+          description: URL to the workflow image
+        created:
+          type: string
+        modified:
+          type: string
+    Seasonal Style:
+      type: object
+      properties:
+        _id:
+          type: string
+        status:
+          type: string
+          example: Active
+        lifecycle:
+          type: string
+          example: New
+        style:
+          type: string
+          format: uuid
+          description: reference to parent style
+        season:
+          type: string
+          format: uuid
+          description: reference to season id
+    Style:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+          example: Bunny Hug
+        number:
+          type: string
+          example: 150068
+        seasonal_styles:
+          type: array
+          items:
+            type: object
+          description: |
+            An array of seasonal definitions of this style.
+        file_cad_2d:
+          type: string
+          format: uuid
+          description: reference to file id
+        file_cad_3d:
+          type: string
+          format: uuid
+          description: reference to file id
+        image_bw:
+          type: string
+          format: uuid
+          description: reference to file id
+        image_construction_1:
+          type: string
+          format: uuid
+          description: reference to file id
+        file_cad_graphic:
+          type: string
+          format: uuid
+          description: reference to file id
+        image_graphic_1:
+          type: string
+          format: uuid
+          description: reference to file id
